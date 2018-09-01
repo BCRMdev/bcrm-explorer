@@ -1,7 +1,7 @@
 extends layout
 
 block headContent
-	title Transaction #{txid}
+	title Bitcoin RM Explorer: Transaction #{txid}
 	style.
 		.field {
 			word-wrap: break-word;
@@ -213,7 +213,7 @@ block content
 
 										tr
 											th
-											td
+											td Inputs:
 											td
 												strong
 													- var currencyValue = totalInputValue;
@@ -245,7 +245,7 @@ block content
 
 										tr
 											th
-											td
+											td Outputs:
 											td
 												strong
 													- var currencyValue = totalOutputValue;

@@ -2,8 +2,8 @@ var credentials = require("./credentials.js");
 
 module.exports = {
 	cookiePassword: "0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-	demoSite: true,
-	coin: "BTC",
+	demoSite: false,
+	coin: "BCRM",
 
 	rpcBlacklist:[
 		"stop",
@@ -14,6 +14,7 @@ module.exports = {
 		"dumpwallet",
 		"setban",
 		"clearbanned",
+		"listbanned",
 		"setnetworkactive",
 		"lockunspent",
 		"move",
@@ -26,7 +27,49 @@ module.exports = {
 		"walletpassphrase",
 		"walletpassphrasechange",
 		"verifychain",
-		"pruneblockchain"
+		"pruneblockchain",
+		"generate",
+		"generatetoaddress",
+		"prioritisetransaction",
+		"submitblock",
+		"sendrawtransaction",
+		"preciousblock",
+		"signmessage",
+		"signrawtransaction",
+		"fundrawtransaction",
+		"getnewaddress",
+		"getwalletinfo",
+		"getbalance",
+		"getunconfirmedbalance",
+		"getrawchangeaddress",
+		"getaccountaddress",
+		"getaccount",
+		"getreceivedbyaccount",
+		"getreceivedbyaddress",
+		"gettransaction",
+		"importaddress",
+		"importmulti",
+		"importprivkey",
+		"importpubkey",
+		"keypoolrefill",
+		"importprunedfunds",
+		"listaccounts",
+		"listreceivedbyaccount",
+		"listreceivedbyaddress",
+		"listaddressgroupings",
+		"listunspent",
+		"listsinceblock",
+		"listtransactions",
+		"lockunspent",
+		"listlockunspent",
+		"listwallets",
+		"sendfrom",
+		"sendmany",
+		"sendtoaddress",
+		"settxfee",
+		"setaccount",
+		"ping",
+		"help"
 	],
 
 	site: {
@@ -37,25 +80,17 @@ module.exports = {
 	credentials: credentials,
 
 	// Edit "ipWhitelistForRpcCommands" regex to limit access to RPC Browser / Terminal to matching IPs
-	ipWhitelistForRpcCommands:/^(127\.0\.0\.1)?(\:\:1)?$/,
+        // localhost in IPv4 is 127.0.0.1
+        // localhost in IPv6 is ::1
+        // localhost in IPv4 encapsulated in IPv6 is ::ffff:127.0.0.1
+	ipWhitelistForRpcCommands:/^(127\.0\.0\.1)?(\:\:1)?(\:\:ffff\:127\.0\.0\.1)?$/,
 
 	googleAnalyticsTrackingId:"",
 	sentryUrl:"",
 
 	donationAddresses:{
-		coins:["BTC", "LTC"],
-
-		"BTC":{address:"3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe", urlPrefix:"bitcoin:"},
-		"LTC":{address:"ME4pXiXuWfEi1ANBDo9irUJVcZBhsTx14i", urlPrefix:"litecoin:"}
-	},
-
-	headerDropdownLinks: {
-		title:"Related Sites",
-		links:[
-			{name: "Bitcoin Explorer", url:"https://btc.chaintools.io", imgUrl:"/img/logo/btc.svg"},
-			{name: "Litecoin Explorer", url:"https://ltc.chaintools.io", imgUrl:"/img/logo/ltc.svg"},
-			{name: "Lightning Explorer", url:"https://lightning.chaintools.io", imgUrl:"/img/logo/lightning.svg"},
-		]
+		coins:["BCRM"],
+		"BCRM":{address:"3NPGpNyLLmVKCEcuipBs7G4KpQJoJXjDGe", urlPrefix:"bitcoin:"}
 	},
 
 	ipStackComApiAccessKey:""

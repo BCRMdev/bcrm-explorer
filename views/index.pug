@@ -1,7 +1,7 @@
 extends layout
 
 block headContent
-	title Home
+	title Bitcoin RM Explorer: Home
 	
 block content
 	h1(class="h3") #{coinConfig.siteTitle}
@@ -36,9 +36,7 @@ block content
 				thead
 					tr
 						th Hashrate
-						if (getblockchaininfo.size_on_disk)
-							th Blockchain Size
-
+						th Blockchain Size
 						th Difficulty
 						th Mempool Size
 
@@ -106,12 +104,18 @@ block content
 						tr
 							th(class="text-left") Count
 							each item, index in chainTxStats
-								td(class="monospace") #{item.window_tx_count.toLocaleString()}
+								if (item)
+									td(class="monospace") #{item.window_tx_count.toLocaleString()}
+								else
+									td(class="monospace") NULL
 
 						tr
 							th(class="text-left") Rate
 							each item, index in chainTxStats
-								td(class="monospace") #{new Decimal(item.txrate).toDecimalPlaces(4)}
+								if (item)
+									td(class="monospace") #{new Decimal(item.txrate).toDecimalPlaces(4)}
+								else
+									td(class="monospace") NULL
 
 block endOfBody
 	script(async, defer, src="https://buttons.github.io/buttons.js")

@@ -36,6 +36,7 @@ function getRawMempool() {
 }
 
 function getChainTxStats(blockCount) {
+	//console.log("==> getchaintxstats", blockCount);
 	return getRpcDataWithParams("getchaintxstats", blockCount);
 }
 
@@ -55,7 +56,7 @@ function getBlockByHeight(blockHeight) {
 }
 
 function getBlocksByHeight(blockHeights) {
-	//console.log("getBlocksByHeight: " + blockHeights);
+	console.log("getBlocksByHeight: " + blockHeights);
 
 	return new Promise(function(resolve, reject) {
 		var batch = [];
@@ -156,7 +157,7 @@ function getAddress(address) {
 }
 
 function getRawTransactions(txids) {
-	//console.log("getRawTransactions: " + txids);
+	console.log("getRawTransactions: " + txids);
 
 	return new Promise(function(resolve, reject) {
 		if (!txids || txids.length == 0) {
@@ -171,26 +172,10 @@ function getRawTransactions(txids) {
 			var txid = txids[i];
 			
 			if (txid) {
-				if (coins[config.coin].genesisCoinbaseTransactionId && txid == coins[config.coin].genesisCoinbaseTransactionId) {
-					// copy the "confirmations" field from genesis block to the genesis-coinbase tx
-					promises.push(new Promise(function(resolve2, reject2) {
-						getBlockchainInfo().then(function(blockchainInfoResult) {
-							var result = coins[config.coin].genesisCoinbaseTransaction;
-							result.confirmations = blockchainInfoResult.blocks;
-
-							resolve2([result]);
-
-						}).catch(function(err) {
-							reject2(err);
-						});
-					}));
-
-				} else {
-					requests.push({
-						method: 'getrawtransaction',
-						parameters: [ txid, 1 ]
-					});
-				}
+				requests.push({
+					method: 'getrawtransaction',
+					parameters: [ txid, 1 ]
+				});
 			}
 		}
 
@@ -400,7 +385,6 @@ function executeBatchesSequentiallyInternal(batchId, batches, currentIndex, accu
 		}
 	});
 }
-
 
 module.exports = {
 	getBlockchainInfo: getBlockchainInfo,

@@ -2,6 +2,9 @@
 
 'use strict';
 
+// Disable logging. Comment out the following line to enable logging
+console.log = function() {};
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -42,7 +45,7 @@ app.engine('pug', (path, options, fn) => {
 app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -137,10 +140,8 @@ app.runOnStartup = function() {
 	}
 
 	if (global.sourcecodeVersion == null) {
-		simpleGit(".").log(["-n 1"], function(err, log) {
-			global.sourcecodeVersion = log.all[0].hash.substring(0, 10);
-			global.sourcecodeDate = log.all[0].date.substring(0, "0000-00-00".length);
-		});
+		global.sourcecodeVersion = '0.1';
+		global.sourcecodeDate = '2018-08-30';
 	}
 
 	if (global.exchangeRate == null) {
@@ -176,10 +177,6 @@ app.use(function(req, res, next) {
 	
 	res.locals.host = req.session.host;
 	res.locals.port = req.session.port;
-
-	res.locals.genesisBlockHash = coreApi.getGenesisBlockHash();
-	res.locals.genesisCoinbaseTransactionId = coreApi.getGenesisCoinbaseTransactionId();
-
 
 	// currency format type
 	if (!req.session.currencyFormatType) {

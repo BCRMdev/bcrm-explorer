@@ -14,7 +14,7 @@ table(class="table table-striped table-responsive-sm")
 				th(class="data-header text-right") Weight (wu)
 	tbody
 		each block, blockIndex in blocks
-			if (block && block.height > 0)
+			if (block)
 				tr
 					//th #{(blockIndex + blockOffset + 1).toLocaleString()}
 					td(class="data-cell monospace")

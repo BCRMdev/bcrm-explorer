@@ -1,7 +1,7 @@
 extends layout
 
 block headContent
-	title Address #{address}
+	title Bitcoin RM Explorer: Address #{address}
 
 block content
 	if (result && result.validateaddress)
@@ -94,18 +94,6 @@ block content
 													i(class="fas fa-check text-success")
 												else
 													i(class="fas fa-times text-danger")
-
-					div(class="card")
-						div(class="card-header")
-							span(class="h6") Transactions
-						div(class="card-body")
-							table(class="table")
-								strong
-									p(class="text-warning") This is a work-in-progress
-								p Since this app is database-free, displaying a list of transactions involving the current address is tricky. I'm actively researching the best way to implement this.
-
-								a(href="https://github.com/janoside/btc-rpc-explorer/issues/8") Suggestions and/or pull requests are welcome!
-				
 
 				div(id="tab-raw", class="tab-pane", role="tabpanel")
 					div(class="highlight")

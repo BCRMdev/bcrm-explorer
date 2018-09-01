@@ -13,18 +13,6 @@ var miscCache = LRU(50);
 var blockCache = LRU(50);
 var txCache = LRU(200);
 
-
-
-function getGenesisBlockHash() {
-	return coins[config.coin].genesisBlockHash;
-}
-
-function getGenesisCoinbaseTransactionId() {
-	return coins[config.coin].genesisCoinbaseTransactionId;
-}
-
-
-
 function tryCacheThenRpcApi(cache, cacheKey, cacheMaxAge, rpcApiFunction) {
 	//console.log("tryCache: " + cacheKey + ", " + cacheMaxAge);
 
@@ -580,8 +568,6 @@ function logCacheSizes() {
 }
 
 module.exports = {
-	getGenesisBlockHash: getGenesisBlockHash,
-	getGenesisCoinbaseTransactionId: getGenesisCoinbaseTransactionId,
 	getBlockchainInfo: getBlockchainInfo,
 	getNetworkInfo: getNetworkInfo,
 	getNetTotals: getNetTotals,
@@ -600,5 +586,5 @@ module.exports = {
 	getAddress: getAddress,
 	logCacheSizes: logCacheSizes,
 	getPeerSummary: getPeerSummary,
-	getChainTxStats: getChainTxStats
+	getChainTxStats: getChainTxStats,
 };

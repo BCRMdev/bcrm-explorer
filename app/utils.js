@@ -215,6 +215,10 @@ function getBlockTotalFeesFromCoinbaseTxAndBlockHeight(coinbaseTx, blockHeight) 
 		return 0;
 	}
 
+	if (!coinbaseTx.vout) {
+		return 0;
+	}
+
 	var blockReward = coinConfig.blockRewardFunction(blockHeight);
 
 	var totalOutput = new Decimal(0);
@@ -224,6 +228,8 @@ function getBlockTotalFeesFromCoinbaseTxAndBlockHeight(coinbaseTx, blockHeight) 
 			totalOutput = totalOutput.plus(new Decimal(outputValue));
 		}
 	}
+
+	console.log("===> ht:",blockHeight,'blockReward:',blockReward.toFixed(),'Outputs:',coinbaseTx.vout.length,'totalOutput',totalOutput.toFixed());
 
 	return totalOutput.minus(new Decimal(blockReward));
 }

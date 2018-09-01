@@ -36,23 +36,30 @@ router.get("/", function(req, res) {
 	promises.push(coreApi.getMempoolInfo());
 	promises.push(coreApi.getMiningInfo());
 
-	var chainTxStatsIntervals = [ 144, 144 * 7, 144 * 30, 144 * 265 ];
+	var chainTxStatsIntervals = [ 1440, 1440 * 7, 1440 * 30, 1440 * 365 ];
 	res.locals.chainTxStatsLabels = [ "24 hours", "1 week", "1 month", "1 year", "All time" ];
-	for (var i = 0; i < chainTxStatsIntervals.length; i++) {
-		promises.push(coreApi.getChainTxStats(chainTxStatsIntervals[i]));
-	}
 
 	coreApi.getBlockchainInfo().then(function(getblockchaininfo) {
 		res.locals.getblockchaininfo = getblockchaininfo;
 
 		var blockHeights = [];
 		if (getblockchaininfo.blocks) {
-			for (var i = 0; i < 10; i++) {
+			for (var i = 0; i < 10 && i <= getblockchaininfo.blocks; i++) {
 				blockHeights.push(getblockchaininfo.blocks - i);
 			}
 		}
 
-		promises.push(coreApi.getChainTxStats(getblockchaininfo.blocks - 1));
+		for (var i = 0; i < chainTxStatsIntervals.length; i++) {
+			if (chainTxStatsIntervals[i] < getblockchaininfo.blocks)
+				promises.push(coreApi.getChainTxStats(chainTxStatsIntervals[i]));
+			else
+				promises.push(null);
+		}
+
+		if (getblockchaininfo.blocks > 0)
+			promises.push(coreApi.getChainTxStats(getblockchaininfo.blocks - 1));
+		else
+			promises.push(null);
 
 		coreApi.getBlocksByHeight(blockHeights).then(function(latestBlocks) {
 			res.locals.latestBlocks = latestBlocks;
@@ -145,54 +152,11 @@ router.get("/peers", function(req, res) {
 });
 
 router.post("/connect", function(req, res) {
-	var host = req.body.host;
-	var port = req.body.port;
-	var username = req.body.username;
-	var password = req.body.password;
-
-	res.cookie('rpc-host', host);
-	res.cookie('rpc-port', port);
-	res.cookie('rpc-username', username);
-
-	req.session.host = host;
-	req.session.port = port;
-	req.session.username = username;
-
-	var client = new bitcoinCore({
-		host: host,
-		port: port,
-		username: username,
-		password: password,
-		timeout: 30000
-	});
-
-	console.log("created client: " + client);
-
-	global.client = client;
-
-	req.session.userMessage = "<strong>Connected via RPC</strong>: " + username + " @ " + host + ":" + port;
-	req.session.userMessageType = "success";
-
-	res.redirect("/");
+	res.send("Post: Permission denied");
 });
 
 router.get("/disconnect", function(req, res) {
-	res.cookie('rpc-host', "");
-	res.cookie('rpc-port', "");
-	res.cookie('rpc-username', "");
-
-	req.session.host = "";
-	req.session.port = "";
-	req.session.username = "";
-
-	console.log("destroyed client.");
-
-	global.client = null;
-
-	req.session.userMessage = "Disconnected from node.";
-	req.session.userMessageType = "success";
-
-	res.redirect("/");
+	res.send("Get: Permission denied");
 });
 
 router.get("/changeSetting", function(req, res) {
@@ -233,14 +197,14 @@ router.get("/blocks", function(req, res) {
 
 		var blockHeights = [];
 		if (sort == "desc") {
-			for (var i = (getblockchaininfo.blocks - offset); i > (getblockchaininfo.blocks - offset - limit); i--) {
+			for (var i = (getblockchaininfo.blocks - offset); i >= (getblockchaininfo.blocks - offset - limit); i--) {
 				if (i >= 0) {
 					blockHeights.push(i);
 				}
 			}
 		} else {
-			for (var i = offset; i < (offset + limit); i++) {
-				if (i >= 0) {
+			for (var i = offset; i <= (offset + limit); i++) {
+				if (i <= getblockchaininfo.blocks) {
 					blockHeights.push(i);
 				}
 			}
@@ -480,7 +444,7 @@ router.get("/address/:address", function(req, res) {
 		}
 	}
 
-	if (global.miningPoolsConfig.payout_addresses[address]) {
+	if (global.miningPoolsConfig && global.miningPoolsConfig.payout_addresses[address]) {
 		res.locals.payoutAddressForMiner = global.miningPoolsConfig.payout_addresses[address];
 	}
 	
@@ -509,7 +473,7 @@ router.get("/rpc-terminal", function(req, res) {
 		var match = config.ipWhitelistForRpcCommands.exec(ip);
 
 		if (!match) {
-			res.send("RPC Terminal / Browser may not be accessed from '" + ip + "'. This restriction can be modified in your config.js file.");
+			res.send("RPC Terminal / Browser may not be accessed from '" + ip + "'");
 
 			return;
 		}
@@ -524,7 +488,7 @@ router.post("/rpc-terminal", function(req, res) {
 		var match = config.ipWhitelistForRpcCommands.exec(ip);
 
 		if (!match) {
-			res.send("RPC Terminal / Browser may not be accessed from '" + ip + "'. This restriction can be modified in your config.js file.");
+			res.send("RPC Terminal / Browser may not be accessed from '" + ip + "'");
 
 			return;
 		}
@@ -535,16 +499,18 @@ router.post("/rpc-terminal", function(req, res) {
 	var parsedParams = [];
 
 	params.forEach(function(param, i) {
-		if (!isNaN(param)) {
+		if (!isNaN(param))
 			parsedParams.push(parseInt(param));
-
-		} else {
+		else if (param == "true")
+			parsedParams.push(true);
+		else if (param == "false")
+			parsedParams.push(false);
+		else
 			parsedParams.push(param);
-		}
 	});
 
 	if (config.rpcBlacklist.includes(cmd.toLowerCase())) {
-		res.write("Sorry, that RPC command is blacklisted. If this is your server, you may allow this command by removing it from the 'rpcBlacklist' setting in config.js.", function() {
+		res.write("Sorry, that RPC command is blacklisted. Error Code: 1", function() {
 			res.end();
 		});
 
@@ -582,7 +548,7 @@ router.get("/rpc-browser", function(req, res) {
 		var match = config.ipWhitelistForRpcCommands.exec(ip);
 
 		if (!match) {
-			res.send("RPC Terminal / Browser may not be accessed from '" + ip + "'. This restriction can be modified in your config.js file.");
+			res.send("RPC Terminal / Browser may not be accessed from '" + ip + "'");
 
 			return;
 		}
@@ -616,7 +582,7 @@ router.get("/rpc-browser", function(req, res) {
 
 									break;
 
-								} else if (argProperties[j] == "boolean") {
+								} else if (argProperties[j] == "boolean" || argProperties[j] == "bool") {
 									if (req.query.args[i]) {
 										argValues.push(req.query.args[i] == "true");
 									}
@@ -637,7 +603,7 @@ router.get("/rpc-browser", function(req, res) {
 					res.locals.argValues = argValues;
 
 					if (config.rpcBlacklist.includes(req.query.method.toLowerCase())) {
-						res.locals.methodResult = "Sorry, that RPC command is blacklisted. If this is your server, you may allow this command by removing it from the 'rpcBlacklist' setting in config.js.";
+						res.locals.methodResult = "Sorry, that RPC command is blacklisted. Error Code: 2";
 
 						res.render("browser");
 
@@ -704,11 +670,14 @@ router.get("/tx-stats", function(req, res) {
 			chainTxStatsIntervals.push(parseInt(Math.max(10, getblockchaininfo.blocks - i * getblockchaininfo.blocks / (dataPoints - 1) - 1)));
 		}
 
-		//console.log("ints: " + JSON.stringify(chainTxStatsIntervals));
+		console.log("ints: " + JSON.stringify(chainTxStatsIntervals));
 
 		var promises = [];
 		for (var i = 0; i < chainTxStatsIntervals.length; i++) {
-			promises.push(coreApi.getChainTxStats(chainTxStatsIntervals[i]));
+			if (chainTxStatsIntervals[i] < getblockchaininfo.blocks)
+				promises.push(coreApi.getChainTxStats(chainTxStatsIntervals[i]));
+			else
+				promises.push(null);
 		}
 
 		Promise.all(promises).then(function(results) {
@@ -721,7 +690,7 @@ router.get("/tx-stats", function(req, res) {
 			};
 
 			for (var i = results.length - 1; i >= 0; i--) {
-				if (results[i].window_tx_count) {
+				if (results[i] && results[i].window_tx_count) {
 					txStats.txCounts.push( {x:(getblockchaininfo.blocks - results[i].window_block_count), y: (results[i].txcount - results[i].window_tx_count)} );
 					txStats.txRates.push( {x:(getblockchaininfo.blocks - results[i].window_block_count), y: (results[i].txrate)} );
 					txStats.txLabels.push(i);
@@ -738,19 +707,12 @@ router.get("/tx-stats", function(req, res) {
 	
 });
 
-router.get("/about", function(req, res) {
-	res.render("about");
+router.get("*", function(req, res) {
+	res.send("404 Get: Page Not Found");
 });
 
-router.get("/fun", function(req, res) {
-	var sortedList = coins[config.coin].historicalData;
-	sortedList.sort(function(a, b){
-		return ((a.date > b.date) ? 1 : -1);
-	});
-
-	res.locals.historicalData = sortedList;
-	
-	res.render("fun");
+router.post("*", function(req, res) {
+	res.send("404 Post: Page Not Found");
 });
 
 module.exports = router;

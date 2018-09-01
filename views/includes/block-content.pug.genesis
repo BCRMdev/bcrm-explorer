@@ -37,11 +37,7 @@ div(class="tab-content")
 					tr
 						th(class="table-active properties-header") Previous Block
 						td(class="monospace word-wrap")
-							if (result.getblock.height == 1)
-								#{result.getblock.previousblockhash}
-								br
-								span(class="text-muted") ##{(result.getblock.height - 1).toLocaleString()}
-							else if (result.getblock.previousblockhash)
+							if (result.getblock.previousblockhash)
 								a(class="word-wrap", href=("/block/" + result.getblock.previousblockhash)) #{result.getblock.previousblockhash}
 								br
 								span(class="text-muted") ##{(result.getblock.height - 1).toLocaleString()}

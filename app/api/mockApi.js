@@ -295,6 +295,10 @@ function getRpcMethodHelp(methodName) {
 	});
 }
 
+function getBlockSubsidy(blockHeight) {
+	return getRpcDataWithParams("getblocksubsidy", blockHeight);
+}
+
 
 
 module.exports = {
@@ -311,5 +315,6 @@ module.exports = {
 	getUptimeSeconds: getUptimeSeconds,
 	getHelp: getHelp,
 	getRpcMethodHelp: getRpcMethodHelp,
-	getAddress: getAddress
+	getAddress: getAddress,
+	getBlockSubsidy: getBlockSubsidy
 };

@@ -1,4 +1,4 @@
-### Setup of https://btc-explorer.com on Ubuntu 16.04
+### Setup of https://bcrm-explorer.com on Ubuntu 16.04
 
     apt update
     apt upgrade
@@ -11,13 +11,11 @@
     apt upgrade
     apt install python-certbot-nginx
     
-Copy content from [./btc-explorer.com.conf](./btc-explorer.com.conf) into `/etc/nginx/sites-available/btc-explorer.com.conf`
+Copy content from [./bcrm-explorer.com.conf](./bcrm-explorer.com.conf) into `/etc/nginx/sites-available/bcrm-explorer.com.conf`
 
-    certbot --nginx -d btc-explorer.com
+    certbot --nginx -d bcrm-explorer.com
     cd /etc/ssl/certs
     openssl dhparam -out dhparam.pem 4096
-    cd /home/bitcoin
-    git clone https://github.com/janoside/btc-rpc-explorer.git
-    cd /home/bitcoin/btc-rpc-explorer
+    cd bcrm-explorer
     npm install
-    pm2 start bin/www --name "btc-rpc-explorer"
+    pm2 start bin/www --name bcrm-explorer
